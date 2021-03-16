@@ -216,7 +216,6 @@ def friendsOfUser(users):
 
 
 
-
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, photo_id, caption FROM Photos WHERE user_id = '{0}'".format(uid))
@@ -287,18 +286,24 @@ def upload_file():
 		return render_template('upload.html', albums=['red', 'blue'])
 #end photo uploading code
 
-@app.route('/explore', methods = ['GET', 'POST']))
-
+@app.route('/explore', methods = ['GET', 'POST'])
+def explore():
+	if request.method == 'GET':
+		return render_template('explore.html')
+	
+	#everything below means POST
 	#user = request.form.get("user")
 	#tag = request.form.get("tag")
-	#no implemented at all, just trying to fifgure out how to submit info in form and get back
 
+
+@app.route('/<user_id>', methods = ['GET', 'POST'])
+def profile(user_id):
+	user = request.args.get("user_id")
 
 #default page
 @app.route("/", methods=['GET'])
 def hello():
 	return render_template('hello.html', message='Welecome to Photoshare')
-
 
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run
