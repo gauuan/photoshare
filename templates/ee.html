@@ -1,18 +1,25 @@
-<form action="/upload/" method="POST">
+<form action="{{ url_for('register_user') }}" method="POST">
+						{% if not display %}
+							<h1>Required field is missing</h1>
+						{% endif %}
+
+						{% if duplicate %}
+							<h1>Email is already in use</h1>
+						{% endif %}
 						<div class="form-group" id="#signup-form">
-							<input type="text" class="form-control" placeholder="First Name" name="firstname">
+							<input type="text" class="form-control" placeholder="First Name" name="firstname" required="true">
 						</div>
 
 						<div class="form-group">
-							<input type="text" class="form-control" placeholder="Last Name" name="lastname">
+							<input type="text" class="form-control" placeholder="Last Name" name="lastname" required="true">
 						</div>
 
 						<div class="form-group">
-							<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email" name="email">
+							<input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email" name="email" required="true">
 						</div>
 
 						<div class="form-group">
-							<input type="text" class="form-control" placeholder="date of birth (format:1994-12-12)" name="birthday">
+							<input type="text" class="form-control" placeholder="date of birth (format:1994-12-12)" name="birthday" required="true">
 						</div>
 
 						<div class="form-group">
@@ -24,7 +31,7 @@
 						</div>
 
 						<div class="form-group">
-							<input type="password" class="form-control" placeholder="Password" name="password">
+							<input type="password" class="form-control" placeholder="Password" name="password" required="true">
 						</div>
 
 						<button type="submit" value="Search" class="btn btn-default submit">Sign Up Now!</button>

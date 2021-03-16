@@ -112,6 +112,36 @@ def logout():
 	flask_login.logout_user()
 	return render_template('hello.html', message='Logged out')
 
+@app.route('/albums', methods=['GET'])
+def showAlbums():
+		return render_template('albums.html')
+		#POST:
+@app.route('/albums', methods=['POST'])
+def showAlbums2():
+	user_email = request.form.get('user')
+	tag = request.form.get('tag')
+
+	if user_email:
+		return flask.redirect(flask.url_for('showAlbumsbyUser', user_id=getUserIdFromEmail(user_email)))
+	elif tag:
+		return flask.redirect(flask.url_for('showAlbumsbyTag', tag=tag))
+	else:
+		return render_template('albums.html')
+
+@app.route('/albums/<string:tag>') #we should use tag_id, which is an int. need to figure out how 
+def showAlbumsbyTag(tag):
+	return 0
+@app.route('/albums/<int:albumid>?album=True')
+def showPhotosinAlbum(albumid):
+	return 0
+
+@app.route('/albums/<int:user_id>')
+def showAlbumsbyUser(user_id):
+	cursor = conn.cursor()
+	cursor.execute(""" SELECT A.title FROM Users U, Albums A WHERE U.user_id = A.user_id AND (U.user_id = '{0}')""".format(user_id))
+	album_names = cursor.fetchall()
+	return render_template('photo_render.html', albums=album_names)
+
 @login_manager.unauthorized_handler
 def unauthorized_handler():
 	return render_template('unauth.html')
@@ -120,40 +150,51 @@ def unauthorized_handler():
 
 @app.route("/register", methods=['GET'])
 def register():
-	return render_template('register.html', display='True')
+	return render_template('ee.html', display='True')
 
 @app.route("/register", methods=['POST'])
 def register_user():
 	try:
-		email=request.form.get('email')
-		password=request.form.get('password')
+		firstName=request.form.get('firstname') #required
+		lastName=request.form.get('lastname') #required
+		email=request.form.get('email') #required
+		DOB=request.form.get('birthday')
+		hometown=request.form.get('hometown')
+		gender=request.form.get('gender')
+		password=request.form.get('password') #required
+
+		#NOTE: kinda doesn't work 
 	except:
 		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
 	cursor = conn.cursor()
 	test = isEmailUnique(email)
-	if test:
-		print(cursor.execute("INSERT INTO Users (email, password) VALUES ('{0}', '{1}')".format(email, password)))
+	if test and firstName and lastName and password:
+		print(cursor.execute("""
+		INSERT INTO Users (fname, lname, DOB, gender, hometown, email, password) 
+		VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')""".format(firstName, lastName, DOB, gender, hometown, email, password)))
 		conn.commit()
 		#log user in
 		user = User()
 		user.id = email
 		flask_login.login_user(user)
 		return render_template('hello.html', name=email, message='Account Created!')
-	else:
+	elif not test:
 		#print("couldn't find all tokens")
-		cursor.close()
-		return render_template('register.html')
+		#cursor.close()
+		return render_template('ee.html', duplicate='True')
+		#NOTE: actually does work, but not this part
+	else:
+		#cursor.close()
+		return render_template('ee.html')
+
 
 @app.route("/search", methods=['GET', 'POST'])
 def searchFriends():
 	if flask.request.method == 'GET':
-		#get friends
+		#get value of search term 
 		cursor = conn.cursor()
 		cursor.execute("SELECT ")
-    return render_template()#friend search html
-  if flask.request.method == 'POST':
-    #push sea
 
 
 
@@ -190,7 +231,7 @@ def getUserIdFromEmail(email):
 def isEmailUnique(email):
 	#use this to check if a email has already been registered
 	cursor = conn.cursor()
-	if cursor.execute("SELECT email  FROM Users WHERE email = '{0}'".format(email)):
+	if not email or cursor.execute("SELECT email  FROM Users WHERE email = '{0}'".format(email)):
 		#this means there are greater than zero entries with that email
 		return False
 	else:
@@ -217,12 +258,15 @@ def upload_file():
 		caption = request.form.get('caption')
 		photo_data =imgfile.read()
 		cursor = conn.cursor()
+		album_name = request.form.get('newAlbum')
 		cursor.execute('''INSERT INTO Photos (imgdata, user_id, caption) VALUES (%s, %s, %s )''' ,(photo_data,uid, caption))
+		cursor.execute("""INSERT INTO Albums (title, user_id) VALUES (%s, %s )""", (album_name, uid))
 		conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
-		return render_template('upload.html')
+		cursor = conn.cursor()
+		return render_template('upload.html', albums=['red', 'blue'])
 #end photo uploading code
 
 
