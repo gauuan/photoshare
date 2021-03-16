@@ -272,6 +272,12 @@ def upload_file():
 		return render_template('upload.html', albums=['red', 'blue'])
 #end photo uploading code
 
+@app.route('/explore', methods = ['GET', 'POST']))
+
+	#user = request.form.get("user")
+	#tag = request.form.get("tag")
+	#no implemented at all, just trying to fifgure out how to submit info in form and get back
+
 
 #default page
 @app.route("/", methods=['GET'])
