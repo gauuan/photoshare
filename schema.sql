@@ -82,7 +82,7 @@ CREATE TABLE Comments
 (
 	cid INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY, /*required*/
 	text VARCHAR(255) NOT NULL, /*required*/
-	commenter_id INTEGER NOT NULL, /*required*/
+	commenter_id INTEGER DEFAULT NULL, /*not required, bc if anon user*/
 	date_commented DATE DEFAULT(CURRENT_DATE),
 	poster_id INTEGER DEFAULT NULL,
 	photo_id INTEGER NOT NULL,
