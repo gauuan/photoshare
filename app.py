@@ -152,6 +152,10 @@ def unauthorized_handler():
 def register():
 	return render_template('ee.html', display='True')
 
+@app.route("/register/existingaccount", methods=['GET'])
+def existingaccount():
+	return render_template('ee.html',  display='True', duplicate='True')
+
 @app.route("/register", methods=['POST'])
 def register_user():
 	try:
@@ -163,7 +167,6 @@ def register_user():
 		gender=request.form.get('gender')
 		password=request.form.get('password') #required
 
-		#NOTE: kinda doesn't work 
 	except:
 		print("couldn't find all tokens") #this prints to shell, end users will not see this (all print statements go to shell)
 		return flask.redirect(flask.url_for('register'))
@@ -182,7 +185,7 @@ def register_user():
 	elif not test:
 		#print("couldn't find all tokens")
 		#cursor.close()
-		return render_template('ee.html', duplicate='True')
+		return flask.redirect(flask.url_for('existingaccount'))
 		#NOTE: actually does work, but not this part
 	else:
 		#cursor.close()

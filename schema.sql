@@ -11,7 +11,7 @@ CREATE TABLE Users (
     gender VARCHAR(50) DEFAULT NULL,
     hometown VARCHAR(50) DEFAULT NULL,
     email VARCHAR(255) UNIQUE,
-    password VARCHAR(255) DEFAULT NULL,
+    password VARCHAR(255) NOT NULL,
     CONSTRAINT users_pk PRIMARY KEY (user_id)
 );
 
