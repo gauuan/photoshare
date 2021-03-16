@@ -200,6 +200,21 @@ def searchFriends():
 		cursor.execute("SELECT ")
 
 
+@app.route("/<str:users>/friends", methods=['GET', 'POST'])
+def friendsOfUser(users):
+	if flask.request.method == 'GET':
+		cursor = conn.cursor()
+		cursor.execute("""SELECT friend_id FROM are_friends WHERE user_id = '{0}' """.format(users))
+		friend_ids = cursor.fetchall()
+		cursor.execute("""SELECT fname, lname FROM Users WHERE user_id IN '{0}' """.format(friend_ids))
+		friends = cursor.fetchall()
+		return render_template('friends.html', friends=friends)
+	else:
+		return render_template('friends.html', friends=['red', 'blue'])
+
+
+
+
 
 
 def getUsersPhotos(uid):
