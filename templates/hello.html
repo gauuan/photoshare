@@ -19,10 +19,10 @@
     </ul>
 {% endif %}
 
-{% if message is none %}
+{% if not user_id %}
   <p>You should <a href='/login'>login!</a></p>
 {% else %}
-  <p> Go to <a href='/profile'>profile?</a></p>
+  <p> Go to <a href='/{{ user_id }}'>profile?</a></p>
 {% endif %}
 
 <ul>

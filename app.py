@@ -26,7 +26,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'isham536'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'mango147'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -100,14 +100,16 @@ def login():
 		if flask.request.form['password'] == pwd:
 			user = User()
 			user.id = email
+			user_id = getUserIdFromEmail(email)
 			flask_login.login_user(user) #okay login in user
-			return flask.redirect(flask.url_for('protected')) #protected is a function defined in this file
+			return flask.redirect(flask.url_for('profiles', user_id = user_id)) #protected is a function defined in this file
 
 	#information did not match
 	return "<a href='/login'>Try again</a>\
 			</br><a href='/register'>or make an account</a>"
 
 @app.route('/logout')
+@flask_login.login_required
 def logout():
 	flask_login.logout_user()
 	return render_template('hello.html', message='Logged out')
@@ -171,30 +173,6 @@ def register_user():
 		#cursor.close()
 		return render_template('ee.html')
 
-<<<<<<< HEAD
-
-@app.route("/search", methods=['GET', 'POST'])
-def searchFriends():
-	if flask.request.method == 'GET':
-		#get value of search term 
-		cursor = conn.cursor()
-		cursor.execute("SELECT ")
-
-
-# @app.route("/<str:users>/friends", methods=['GET', 'POST'])
-# def friendsOfUser(users):
-# 	if flask.request.method == 'GET':
-# 		cursor = conn.cursor()
-# 		cursor.execute("""SELECT friend_id FROM are_friends WHERE user_id = '{0}' """.format(users))
-# 		friend_ids = cursor.fetchall()
-# 		cursor.execute("""SELECT fname, lname FROM Users WHERE user_id IN '{0}' """.format(friend_ids))
-# 		friends = cursor.fetchall()
-# 		return render_template('friends.html', friends=friends)
-# 	else:
-# 		return render_template('friends.html', friends=['red', 'blue'])
-
-=======
->>>>>>> f7757a15a7aa45d8864565c7eaa0c9d5c8935703
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, photo_id, caption FROM Photos WHERE user_id = '{0}'".format(uid))
@@ -294,7 +272,18 @@ def explore():
 @app.route('/<user_id>', methods = ['GET', 'POST'])
 def profiles(user_id):
 	if request.method == 'GET':
-		return render_template('profile.html', user=user_id, name = getUserNameFromID(user_id))
+		if flask_login.current_user.is_authenticated:
+			if getUserIdFromEmail(flask_login.current_user.id) == user_id:
+				# current user is looking at their own profile
+				# functionality to delete albums and picture
+				# add route to upload new photos
+				return render_template('profile.html', name = getUserNameFromID(user_id), self_view = 'True')
+			else:
+				# current user is looking at someone else's profile
+				return render_template('profile.html', name = getUserNameFromID(user_id))
+		else:
+		# anonymous user view
+			return render_template('profile.html', name = getUserNameFromID(user_id), anon = 'True')
 	#else (POST):
 
 @app.route("/<user_id>/friends", methods=['GET', 'POST'])
@@ -312,8 +301,11 @@ def friendsOfUser(user_id):
 #default page
 @app.route("/", methods=['GET'])
 def hello():
-	return render_template('hello.html', message='Welecome to Photoshare')
-
+	if flask_login.current_user.is_authenticated:
+		user_id = getUserIdFromEmail(flask_login.current_user.id)
+		return render_template('hello.html', user_id = user_id, message='Welecome to Photoshare')
+	else: 
+		return render_template('hello.html', message='Welecome to Photoshare')
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run
 	#$ python app.py

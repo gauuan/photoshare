@@ -4,6 +4,16 @@ A user’s profile, containing their name, contribution score (?), button to see
 {% if name %}
 	<h1>{{ name }}'s Profile</h1>
 {% endif %}
+
+{% if self_view %}
+	<h1>test self view</h1>
+{% endif %}
+
+{% if anon %}
+	<h1> anon</h1>
+{% endif %}
+
+
 - Logged in view (of OWN PROFILE): (@flask_login.login_required)  Users able to delete their own albums and photos. Also, upload is available here.
 - Logged in view (of OTHER USER PROFILE): (@flask_login.login_required) button so user can add person as a fiend
 - Not logged in view: just view the albums, be able to click on them and see them
