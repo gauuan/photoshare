@@ -8,19 +8,19 @@
 <p>Recommended Friends</p>
 <p> Posts you may also like</p>
 </div>
+<form method="POST" action="/">
+    <div>
+    <h1>Search for new friends/a user</h1> 
+    <input type="text" name="user" placeholder="Email">
+    <input type="submit" value="Upload">
+    <p>(combining searching/adding for a friend and browsing by user)
+        Type in fname lname, choose from list of links to user profiles
+        Then, directed to selected user’s profile (can add friend from there)</p>
 
-<div>
-<h1>Search for new friends/a user</h1> 
-<input type="text" placeholder="Email">
-<input type="submit" value="Upload">
-<p>(combining searching/adding for a friend and browsing by user)
-    Type in fname lname, choose from list of links to user profiles
-    Then, directed to selected user’s profile (can add friend from there)</p>
-
-<h1><a href = '/photos'>Search by tags</a></h1>
-<p>Both in own pics and others -> a switch of the form "View all photos / View my photos" that when toggled switches from one view to the other.</p>
-<h3> + Button to view the most popular tags</h2>
-
+    <h1><a href = '/photos'>Search by tags</a></h1>
+    <p>Both in own pics and others -> a switch of the form "View all photos / View my photos" that when toggled switches from one view to the other.</p>
+    <h3> + Button to view the most popular tags</h2>
+</form>
 
 <h1>Search on Comments</h1>
 <p>implement a search function based on the comments. The user can specify a text query (one or more words) and the system should find the users that have created comments that exactly match the query text. The system should return these users ordered by the number of comments that match the query for each such user in descending order.</p>

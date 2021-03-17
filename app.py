@@ -175,7 +175,29 @@ def register_user():
 		return render_template('ee.html')
 
 
+<<<<<<< HEAD
 
+=======
+@app.route("/search", methods=['GET', 'POST'])
+def searchFriends():
+	if flask.request.method == 'GET':
+		#get value of search term 
+		cursor = conn.cursor()
+		cursor.execute("SELECT ")
+
+
+# @app.route("/<str:users>/friends", methods=['GET', 'POST'])
+# def friendsOfUser(users):
+# 	if flask.request.method == 'GET':
+# 		cursor = conn.cursor()
+# 		cursor.execute("""SELECT friend_id FROM are_friends WHERE user_id = '{0}' """.format(users))
+# 		friend_ids = cursor.fetchall()
+# 		cursor.execute("""SELECT fname, lname FROM Users WHERE user_id IN '{0}' """.format(friend_ids))
+# 		friends = cursor.fetchall()
+# 		return render_template('friends.html', friends=friends)
+# 	else:
+# 		return render_template('friends.html', friends=['red', 'blue'])
+>>>>>>> 6986e08b273ce80d1bcae0b23fcdb21e0bff3b2e
 
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
@@ -202,7 +224,6 @@ def getPicturesbyTag(tag):
 	cursor.execute(""" SELECT tag_id FROM Tags WHERE tag_id = '{0}' """.format(tag))
 	tags_ids = cursor.fetchall()
 	cursor.execute(""" SELECT photo_id FROM is_tagged WHERE tag_id = '{0}'""".format(tags_ids))
-
 
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -260,6 +281,7 @@ def explore():
 		uid = getUserIdFromEmail(email)
 		return flask.redirect(flask.url_for())
 
+<<<<<<< HEAD
 # @app.route('/<user_id>', methods = ['GET', 'POST'])
 # def profile(user_id):
 	
@@ -275,6 +297,13 @@ def friendsOfUser(user_id):
 		return render_template('friends.html', friends=friends)
 	else:
 		return render_template('friends.html', friends=['red', 'blue'])
+=======
+@app.route('/<user_id>', methods = ['GET', 'POST'])
+def profile(user_id):
+	if request.method == 'GET':
+		return render_template('profile.html', user = user_id)
+	#esle (POST):
+>>>>>>> 6986e08b273ce80d1bcae0b23fcdb21e0bff3b2e
 
 #default page
 @app.route("/", methods=['GET'])
