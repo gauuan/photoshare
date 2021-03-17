@@ -216,7 +216,7 @@ def getPhotoIDsbyTag(tag):
 	if tags_id:
 		cursor.execute(""" SELECT photo_id FROM is_tagged WHERE tag_id = '{0}'""".format(tags_id[0]))
 		return cursor.fetchall()
-	return NULL;
+	return NULL
 
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -342,10 +342,7 @@ def friendsOfUser(user_id):
 		cursor.execute("""(SELECT friend_id FROM are_friends WHERE user_id = '{0}')""".format(user_id))
 		friend_ids = cursor.fetchall()
 		friend_id_list = [x[0] for x in friend_ids]
-		#cursor.execute("""SELECT Concat(U.fname, ' ', U.lname) FROM Users U, are_friends F WHERE F.friend_id = U.user_id AND F.user_id = '{0}')""".format(user_id))
-		#friend_names = cursor.fetchall()
 		friend_name_list = [getUserNameFromID(x) for x in friend_id_list]
-		#friends = cursor.fetchall()
 		return render_template('friends.html', friends = friend_name_list, friend_id = friend_id_list)
 	else: #POST. if have time, add hyperlinks to friends profiles
 		return render_template('friends.html', friends=['red', 'blue'])

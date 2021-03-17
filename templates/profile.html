@@ -20,6 +20,8 @@
 {% endif %}
 
 <a href="{{ url_for('friendsOfUser', user_id = user_id) }}">View Friends</a>
+<br>
+<a href='/<user_id>/albums'>View Albums</a>
 
 {% if not self_view %}
     {% if anon %}
