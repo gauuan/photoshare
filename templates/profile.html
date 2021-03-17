@@ -11,6 +11,12 @@ A user’s profile, containing their name, contribution score (?), button to see
 
         <li>{{photo[2]}}<br>
         <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+        <form action = "/{{uid}}" method="POST">
+            <div>
+                <input type='text' name="comment" placeholder='Write Comment Here'>
+                <button type="submit" value="{{ photo[1] }}">Comment!</button>
+            </div>
+        </form>
     {% endfor %}
     </ul>
 {% endif %}
@@ -24,7 +30,7 @@ A user’s profile, containing their name, contribution score (?), button to see
 {% endif %}
 
 
-- Logged in view (of OWN PROFILE): (@flask_login.login_required)  Users able to delete their own albums and photos. Also, upload is available here.
+<!-- - Logged in view (of OWN PROFILE): (@flask_login.login_required)  Users able to delete their own albums and photos. Also, upload is available here.
 - Logged in view (of OTHER USER PROFILE): (@flask_login.login_required) button so user can add person as a fiend
 - Not logged in view: just view the albums, be able to click on them and see them
-    This is true for all, the above just has extra features
+    This is true for all, the above just has extra features -->

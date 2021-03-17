@@ -125,11 +125,9 @@ def getTagData():
 	photos = []
 	tag_str= request.form.get('tag')
 	tags = tag_str.split(',')
-	for tag in tags:
-		photo_ids = getPhotoIDsbyTag(tag)
-		for id in photo_ids:
-			if id:
-				photos.append(getPhotoFromPhotoID(id[0])[0])
+	photo_ids = conjuctiveTagSearch(tags)
+	for id in photo_ids:
+		photos.append(getPhotoFromPhotoID(id))
 	return render_template('photo_render.html', photos=photos, base64=base64)
 		
 
@@ -174,14 +172,16 @@ def register_user():
 		flask_login.login_user(user)
 		return render_template('hello.html', name=email, message='Account Created!')
 	elif not test:
-		#print("couldn't find all tokens")
-		#cursor.close()
+		
 		return flask.redirect(flask.url_for('existingaccount'))
 		#NOTE: actually does work, but not this part
 	else:
 		#cursor.close()
 		return render_template('ee.html')
 
+"""
+	outputs tuple of photo data
+"""
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, photo_id, caption FROM Photos WHERE user_id = '{0}'".format(uid))
@@ -216,6 +216,23 @@ def getPhotoIDsbyTag(tag):
 		return cursor.fetchall()
 	return NULL;
 
+def conjuctiveTagSearch(tags):
+	conjIDs = []
+	photo_ids = {}
+	for tag in tags:
+		for id in getPhotoIDsbyTag(tag):
+			if id[0] not in photo_ids.keys():
+				photo_ids[id[0]] = 0
+			else:
+				photo_ids[id[0]] += 1
+	for id, count in photo_ids.items():
+		if count == len(tags):
+			
+			conjIDs.append(id)
+
+	return conjIDs
+
+
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
 	cursor.execute("SELECT user_id  FROM Users WHERE email = '{0}'".format(email))
@@ -235,11 +252,6 @@ def isEmailUnique(email):
 	else:
 		return True
 #end login code
-
-@app.route('/profile')
-@flask_login.login_required
-def protected():
-	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
 
 
 #begin photo uploading code
@@ -300,21 +312,32 @@ def explore():
 
 @app.route('/<user_id>', methods = ['GET', 'POST'])
 def profile(user_id):
-	if request.method == 'GET':
+	if flask.request.method == 'GET':
 		if flask_login.current_user.is_authenticated:
 			if getUserIdFromEmail(flask_login.current_user.id) == user_id:
 				# current user is looking at their own profile
 				# functionality to delete albums and picture
 				# add route to upload new photos
-				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, self_view = 'True')
+				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, self_view = 'True', uid=user_id)
 				#only this case doesn't work, bc test msg isnt showing
 			else:
 				# current user is looking at someone else's profile
-				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64)
+				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, uid=user_id)
 		else:
 		# anonymous user view
-			return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, anon = 'True')
-	#else (POST):
+			return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, anon = 'True', uid=user_id)
+	else:
+		comment = request.form.get('comment')
+		pid = request.form['submit_comment']
+		if flask_login.current_user.is_authenticated:
+			uid = getUserIdFromEmail(flask_login.current_user.id)
+		else:
+			uid = NULL
+		cursor = conn.cursor()
+		poster_id = cursor.execute(""" SELECT user_id FROM Photos WHERE photo_id = %s""" % pid)
+		cursor.execute(""" INSERT INTO Comments (text, commenter_id, poster_id, photo_id) VALUES (%s, %s, %s, %s )""", (comment, uid, poster_id[0], pid))
+		return flask.redirect(flask.url_for('profile', user_id), code=302)
+
 
 @app.route("/<user_id>/friends", methods=['GET', 'POST'])
 def friendsOfUser(user_id):
