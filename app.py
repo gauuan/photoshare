@@ -102,7 +102,7 @@ def login():
 			user.id = email
 			user_id = getUserIdFromEmail(email)
 			flask_login.login_user(user) #okay login in user
-			return flask.redirect(flask.url_for('profiles', user_id = user_id)) #protected is a function defined in this file
+			return flask.redirect(flask.url_for('profile', user_id = user_id)) #protected is a function defined in this file
 
 	#information did not match
 	return "<a href='/login'>Try again</a>\
@@ -123,6 +123,9 @@ def getTagData():
 	tag_str= request.form.get('tag')
 	tags = tag_str.split(',')
 	#for tag in tags:
+
+
+
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
@@ -243,11 +246,24 @@ def upload_file():
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
+		tags = request.form.get('tags').split(',')
 		photo_data =imgfile.read()
 		cursor = conn.cursor()
 		album_name = request.form.get('newAlbum')
+		
 		cursor.execute('''INSERT INTO Photos (imgdata, user_id, caption) VALUES (%s, %s, %s )''' ,(photo_data,uid, caption))
 		cursor.execute("""INSERT INTO Albums (title, user_id) VALUES (%s, %s )""", (album_name, uid))
+
+		#NOTE: code to attach tags to photos
+		
+		# for tag in tags:
+		# 	cursor.execute(""" SELECT tag_id from Tags where tag = {0}""".format(tag))
+		# 	tag_id = cursor.fetchone()[0]
+		# 	if not tag_id:
+		# 		cursor.execute(""" INSERT INTO Tags (tag) VALUES (%s) """, tag)
+		# 		cursor.execute(""" SELECT tag_id from Tags where tag = {0}""".format(tag))
+		# 		tag_id = cursor.fetchone()[0]
+		# 	cursor.execute(""" SELECT photo_id FROM PHOTOS  """)
 		conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
@@ -264,26 +280,26 @@ def explore():
 	else:
 		email = request.form.get("user")
 		uid = getUserIdFromEmail(email)
-		return flask.redirect(flask.url_for('profiles',user_id=uid), code=302)
+		return flask.redirect(flask.url_for('profile',user_id=uid), code=302)
 
 # @app.route('/<user_id>', methods = ['GET', 'POST'])
 # def profile(user_id):
 
 @app.route('/<user_id>', methods = ['GET', 'POST'])
-def profiles(user_id):
+def profile(user_id):
 	if request.method == 'GET':
 		if flask_login.current_user.is_authenticated:
 			if getUserIdFromEmail(flask_login.current_user.id) == user_id:
 				# current user is looking at their own profile
 				# functionality to delete albums and picture
 				# add route to upload new photos
-				return render_template('profile.html', name = getUserNameFromID(user_id), self_view = 'True')
+				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, self_view = 'True')
 			else:
 				# current user is looking at someone else's profile
-				return render_template('profile.html', name = getUserNameFromID(user_id))
+				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64)
 		else:
 		# anonymous user view
-			return render_template('profile.html', name = getUserNameFromID(user_id), anon = 'True')
+			return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, anon = 'True')
 	#else (POST):
 
 @app.route("/<user_id>/friends", methods=['GET', 'POST'])
