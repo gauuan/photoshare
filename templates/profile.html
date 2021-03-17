@@ -1,5 +1,15 @@
 <!doctype html>
 
+<ul>
+
+    <li><a href='/'>Home</a></li>
+    <li><a href='/upload'>Upload a photo</a> </li>
+    <li><a href='/explore'>Explore</a></li>
+    <li><a href='/logout'>Logout</a></li>
+    
+</ul>
+    
+
 A user’s profile, containing their name, contribution score (?), button to see their list of friends, and a list of their albums
 {% if name %}
 	<h1>{{ name[0] }}'s Profile</h1>
@@ -16,11 +26,18 @@ A user’s profile, containing their name, contribution score (?), button to see
 {% endif %}
 
 {% if self_view %}
-	<h1>test self view</h1>
-{% endif %}
-
-{% if anon %}
-	<h1> anon</h1>
+	<h1>Your Profile </h1>
+{% elif anon %}
+	<h1> anon </h1>
+{% elif not already_friends %}
+    <form method="POST" action="{{ url_for('profile', user_id = user_id) }}">
+        <button type="submit" name="added_friend" value="add_friend"> Add Friend </button>
+    </form>
+    {% if added %}
+        <h1> Friend added!</h1>
+    {% endif %}
+{% elif already_friends %}
+    <h1> You are already friends! </h1>
 {% endif %}
 
 
@@ -28,3 +45,4 @@ A user’s profile, containing their name, contribution score (?), button to see
 - Logged in view (of OTHER USER PROFILE): (@flask_login.login_required) button so user can add person as a fiend
 - Not logged in view: just view the albums, be able to click on them and see them
     This is true for all, the above just has extra features
+        

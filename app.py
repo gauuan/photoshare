@@ -271,7 +271,6 @@ def upload_file():
 def explore():
 	if request.method == 'GET':
 		return render_template('explore.html')
-	
 	else:
 		email = request.form.get("user")
 		if isEmailUnique(email) == False:
@@ -284,19 +283,34 @@ def explore():
 def profile(user_id):
 	if request.method == 'GET':
 		if flask_login.current_user.is_authenticated:
-			if getUserIdFromEmail(flask_login.current_user.id) == user_id:
+			if str(getUserIdFromEmail(flask_login.current_user.id)) == user_id:
 				# current user is looking at their own profile
 				# functionality to delete albums and picture
 				# add route to upload new photos
-				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, self_view = 'True')
+				return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, self_view = 'True')
 				#only this case doesn't work, bc test msg isnt showing
 			else:
 				# current user is looking at someone else's profile
-				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64)
+				cursor = conn.cursor()
+				cursor.execute("SELECT * FROM are_friends WHERE user_id = '{0}' AND friend_id = '{1}'".format(str(getUserIdFromEmail(flask_login.current_user.id)), str(user_id)))
+				if cursor.fetchone() == None:
+					#aka, not already friends
+					return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64)
+				else:
+					# aka friends already
+					return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, already_friends = 'True')
+
 		else:
 		# anonymous user view
-			return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, anon = 'True')
+			return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, anon = 'True')
+	else:
+		if request.form.get("added_friend"):
+			cursor = conn.cursor()
+			cursor.execute('''INSERT INTO are_friends (user_id, friend_id) VALUES (%s, %s)''' , (str(getUserIdFromEmail(flask_login.current_user.id)), str(user_id)))
+			conn.commit()
+			return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, added = 'True')
 	#else (POST):
+
 
 @app.route("/<user_id>/friends", methods=['GET', 'POST'])
 def friendsOfUser(user_id):
