@@ -25,6 +25,10 @@
     <h3> + Button to view the most popular tags</h2>
 </form>
 
+<form action="{{ url_for('albums', user_id = user_id) }}" method="POST">
 <h1>Search on Comments</h1>
 <p>implement a search function based on the comments. The user can specify a text query (one or more words) and the system should find the users that have created comments that exactly match the query text. The system should return these users ordered by the number of comments that match the query for each such user in descending order.</p>
+<input type="text" name="comment_search" placeholder="Search for Comments">
+<button type="submit" name="comment_submit" value="submit">Search</button>
+</form>
 </div>
