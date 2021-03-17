@@ -1,8 +1,7 @@
-{% if albums %}
     <ul>
-    {% for album in albums %}
+    {% for photo in photos %}
 
-        <li >{{album}}</li>
+        <li>{{photo[1]}}<br>
+        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
     {% endfor %}
     </ul>
-{% endif %}
