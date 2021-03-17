@@ -205,6 +205,11 @@ def getUserIdFromEmail(email):
 	cursor.execute("SELECT user_id  FROM Users WHERE email = '{0}'".format(email))
 	return cursor.fetchone()[0]
 
+def getUserNameFromID(user_id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT Concat(fname, ' ', lname) FROM Users WHERE user_id = '{0}'".format(user_id))
+	return cursor.fetchone()
+
 def isEmailUnique(email):
 	#use this to check if a email has already been registered
 	cursor = conn.cursor()
@@ -282,6 +287,21 @@ def friendsOfUser(user_id):
 		return render_template('friends.html', friends=friends)
 	else:
 		return render_template('friends.html', friends=['red', 'blue'])
+<<<<<<< HEAD
+=======
+=======
+@app.route('/<user_id>', methods = ['GET', 'POST'])
+def profile(user_id):
+	if request.method == 'GET':
+<<<<<<< HEAD
+		return render_template('profile.html', user = user_id, name = getUserNameFromID(user_id))
+	#else (POST):
+=======
+		return render_template('profile.html', user = user_id)
+	#esle (POST):
+>>>>>>> 6986e08b273ce80d1bcae0b23fcdb21e0bff3b2e
+>>>>>>> d0154a9e63a01172345de6c944b445d100f603ca
+>>>>>>> e84dbd5a6b88c5ee4ca995e993672cb0c7c5c4c6
 
 #default page
 @app.route("/", methods=['GET'])
