@@ -274,11 +274,11 @@ def explore():
 	
 	else:
 		email = request.form.get("user")
-		uid = getUserIdFromEmail(email)
-		return flask.redirect(flask.url_for('profile',user_id=uid), code=302)
-
-# @app.route('/<user_id>', methods = ['GET', 'POST'])
-# def profile(user_id):
+		if isEmailUnique(email) == False:
+			uid = getUserIdFromEmail(email)
+			return flask.redirect(flask.url_for('profile',user_id=uid), code=302)
+		else:
+			return render_template('explore.html', no_user_found = 'True')
 
 @app.route('/<user_id>', methods = ['GET', 'POST'])
 def profile(user_id):
@@ -310,7 +310,7 @@ def friendsOfUser(user_id):
 		friend_name_list = [getUserNameFromID(x) for x in friend_id_list]
 		#friends = cursor.fetchall()
 		return render_template('friends.html', friends = friend_name_list, friend_id = friend_id_list)
-	else:
+	else: #POST. if have time, add hyperlinks to friends profiles
 		return render_template('friends.html', friends=['red', 'blue'])
 
 #default page
