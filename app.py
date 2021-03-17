@@ -244,11 +244,24 @@ def upload_file():
 		uid = getUserIdFromEmail(flask_login.current_user.id)
 		imgfile = request.files['photo']
 		caption = request.form.get('caption')
+		tags = request.form.get('tags').split(',')
 		photo_data =imgfile.read()
 		cursor = conn.cursor()
 		album_name = request.form.get('newAlbum')
+		
 		cursor.execute('''INSERT INTO Photos (imgdata, user_id, caption) VALUES (%s, %s, %s )''' ,(photo_data,uid, caption))
 		cursor.execute("""INSERT INTO Albums (title, user_id) VALUES (%s, %s )""", (album_name, uid))
+
+		#NOTE: code to attach tags to photos
+		
+		# for tag in tags:
+		# 	cursor.execute(""" SELECT tag_id from Tags where tag = {0}""".format(tag))
+		# 	tag_id = cursor.fetchone()[0]
+		# 	if not tag_id:
+		# 		cursor.execute(""" INSERT INTO Tags (tag) VALUES (%s) """, tag)
+		# 		cursor.execute(""" SELECT tag_id from Tags where tag = {0}""".format(tag))
+		# 		tag_id = cursor.fetchone()[0]
+		# 	cursor.execute(""" SELECT photo_id FROM PHOTOS  """)
 		conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
