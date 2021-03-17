@@ -73,8 +73,8 @@ friend_id INTEGER NOT NULL,
 PRIMARY KEY(user_id, friend_id),
 FOREIGN KEY(user_id) REFERENCES
 Users(user_id),
-FOREIGN KEY(friend_id) REFERENCES,
-Users(user_id),
+FOREIGN KEY(friend_id) REFERENCES
+	Users(user_id),
 CHECK (user_id <> friend_id)
 );
 

@@ -26,7 +26,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'mango147'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'isham536'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -112,35 +112,18 @@ def logout():
 	flask_login.logout_user()
 	return render_template('hello.html', message='Logged out')
 
-@app.route('/albums', methods=['GET'])
+@app.route('/photos', methods=['GET'])
 def showAlbums():
-		return render_template('albums.html')
+		return render_template('photo_search.html')
 		#POST:
-@app.route('/albums', methods=['POST'])
-def showAlbums2():
-	user_email = request.form.get('user')
-	tag = request.form.get('tag')
+@app.route('/photos', methods=['POST'])
+def getTagData():
+	tag_str= request.form.get('tag')
+	tags = tag_str.split(',')
+	#for tag in tags:
 
-	if user_email:
-		return flask.redirect(flask.url_for('showAlbumsbyUser', user_id=getUserIdFromEmail(user_email)))
-	elif tag:
-		return flask.redirect(flask.url_for('showAlbumsbyTag', tag=tag))
-	else:
-		return render_template('albums.html')
 
-@app.route('/albums/<string:tag>') #we should use tag_id, which is an int. need to figure out how 
-def showAlbumsbyTag(tag):
-	return 0
-@app.route('/albums/<int:albumid>?album=True')
-def showPhotosinAlbum(albumid):
-	return 0
 
-@app.route('/albums/<int:user_id>')
-def showAlbumsbyUser(user_id):
-	cursor = conn.cursor()
-	cursor.execute(""" SELECT A.title FROM Users U, Albums A WHERE U.user_id = A.user_id AND (U.user_id = '{0}')""".format(user_id))
-	album_names = cursor.fetchall()
-	return render_template('photo_render.html', albums=album_names)
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
@@ -192,28 +175,6 @@ def register_user():
 		return render_template('ee.html')
 
 
-@app.route("/search", methods=['GET', 'POST'])
-def searchFriends():
-	if flask.request.method == 'GET':
-		#get value of search term 
-		cursor = conn.cursor()
-		cursor.execute("SELECT ")
-
-
-@app.route("/<str:users>/friends", methods=['GET', 'POST'])
-def friendsOfUser(users):
-	if flask.request.method == 'GET':
-		cursor = conn.cursor()
-		cursor.execute("""SELECT friend_id FROM are_friends WHERE user_id = '{0}' """.format(users))
-		friend_ids = cursor.fetchall()
-		cursor.execute("""SELECT fname, lname FROM Users WHERE user_id IN '{0}' """.format(friend_ids))
-		friends = cursor.fetchall()
-		return render_template('friends.html', friends=friends)
-	else:
-		return render_template('friends.html', friends=['red', 'blue'])
-
-
-
 
 
 def getUsersPhotos(uid):
@@ -234,10 +195,13 @@ def resizeImage(img):
 def getLikeCount(photo_id):
 	cursor = conn.cursor()
 	cursor.execute("SELECT COUNT(*) FROM liked_photos WHERE liked_photo = '{0}'".format(photo_id))
-	return cursor.fetchall()
+	return cursor.fetchone()
 
-def getPicturesbyTag(tag_id):
+def getPicturesbyTag(tag):
 	cursor = conn.cursor()
+	cursor.execute(""" SELECT tag_id FROM Tags WHERE tag_id = '{0}' """.format(tag))
+	tags_ids = cursor.fetchall()
+	cursor.execute(""" SELECT photo_id FROM is_tagged WHERE tag_id = '{0}'""".format(tags_ids))
 
 
 def getUserIdFromEmail(email):
@@ -291,14 +255,26 @@ def explore():
 	if request.method == 'GET':
 		return render_template('explore.html')
 	
-	#everything below means POST
-	#user = request.form.get("user")
-	#tag = request.form.get("tag")
+	else:
+		email = request.form.get("user")
+		uid = getUserIdFromEmail(email)
+		return flask.redirect(flask.url_for())
 
+# @app.route('/<user_id>', methods = ['GET', 'POST'])
+# def profile(user_id):
+	
 
-@app.route('/<user_id>', methods = ['GET', 'POST'])
-def profile(user_id):
-	user = request.args.get("user_id")
+@app.route("/<user_id>/friends", methods=['GET', 'POST'])
+def friendsOfUser(user_id):
+	if flask.request.method == 'GET':
+		cursor = conn.cursor()
+		cursor.execute("""SELECT friend_id FROM are_friends WHERE user_id = '{0}' """.format(user_id))
+		friend_ids = cursor.fetchall()
+		cursor.execute("""SELECT fname, lname FROM Users WHERE user_id IN '{0}' """.format(friend_ids))
+		friends = cursor.fetchall()
+		return render_template('friends.html', friends=friends)
+	else:
+		return render_template('friends.html', friends=['red', 'blue'])
 
 #default page
 @app.route("/", methods=['GET'])
