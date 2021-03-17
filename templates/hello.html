@@ -30,8 +30,10 @@
     </ul>
 {% endif %}
 
-{% if not user_id %}
-  <p>You should <a href='/login'>login!</a></p>
-{% else %}
-  <p> Go to <a href='/{{ user_id }}'>profile?</a></p>
-{% endif %}
+{% if not uploaded %}
+  {% if not user_id %}
+    <p>You should <a href='/login'>login!</a></p>
+  {% else %}
+    <p> Go to <a href='/{{ user_id }}'>profile?</a></p>
+  {% endif %}
+  {% endif %}

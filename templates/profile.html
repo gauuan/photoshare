@@ -10,9 +10,13 @@
 </ul>
     
 
-A user’s profile, containing their name, contribution score (?), button to see their list of friends, and a list of their albums
+<!-- A user’s profile, containing their name, contribution score (?), button to see their list of friends, and a list of their albums -->
 {% if name %}
+    {% if self_view %}
+    <h1> My Profile</h1>
+    {% else %}
 	<h1>{{ name[0] }}'s Profile</h1>
+    {% endif %}
 {% endif %}
 
 {% if photos %}
@@ -25,24 +29,23 @@ A user’s profile, containing their name, contribution score (?), button to see
     </ul>
 {% endif %}
 
-{% if self_view %}
-	<h1>Your Profile </h1>
-{% elif anon %}
+
+{% if anon %}
 	<h1> anon </h1>
-{% elif not already_friends %}
+{% endif %}
+{% if not already_friends %}
     <form method="POST" action="{{ url_for('profile', user_id = user_id) }}">
         <button type="submit" name="added_friend" value="add_friend"> Add Friend </button>
     </form>
     {% if added %}
         <h1> Friend added!</h1>
     {% endif %}
-{% elif already_friends %}
+{% else %}
     <h1> You are already friends! </h1>
 {% endif %}
 
-
-- Logged in view (of OWN PROFILE): (@flask_login.login_required)  Users able to delete their own albums and photos. Also, upload is available here.
+<!--- Logged in view (of OWN PROFILE): (@flask_login.login_required)  Users able to delete their own albums and photos. Also, upload is available here.
 - Logged in view (of OTHER USER PROFILE): (@flask_login.login_required) button so user can add person as a fiend
 - Not logged in view: just view the albums, be able to click on them and see them
-    This is true for all, the above just has extra features
+    This is true for all, the above just has extra features-->
         
