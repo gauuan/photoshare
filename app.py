@@ -220,11 +220,6 @@ def isEmailUnique(email):
 		return False
 	else:
 		return True
-
-def getUserNameFromID(user_id):
-	cursor = conn.cursor()
-	cursor.execute("SELECT Concat(fname, ' ', lname) FROM Users WHERE user_id = '{0}'".format(user_id))
-	return cursor.fetchone()
 #end login code
 
 @app.route('/profile')
