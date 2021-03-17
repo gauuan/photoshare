@@ -200,21 +200,17 @@ def searchFriends():
 		cursor.execute("SELECT ")
 
 
-@app.route("/<str:users>/friends", methods=['GET', 'POST'])
-def friendsOfUser(users):
-	if flask.request.method == 'GET':
-		cursor = conn.cursor()
-		cursor.execute("""SELECT friend_id FROM are_friends WHERE user_id = '{0}' """.format(users))
-		friend_ids = cursor.fetchall()
-		cursor.execute("""SELECT fname, lname FROM Users WHERE user_id IN '{0}' """.format(friend_ids))
-		friends = cursor.fetchall()
-		return render_template('friends.html', friends=friends)
-	else:
-		return render_template('friends.html', friends=['red', 'blue'])
-
-
-
-
+# @app.route("/<str:users>/friends", methods=['GET', 'POST'])
+# def friendsOfUser(users):
+# 	if flask.request.method == 'GET':
+# 		cursor = conn.cursor()
+# 		cursor.execute("""SELECT friend_id FROM are_friends WHERE user_id = '{0}' """.format(users))
+# 		friend_ids = cursor.fetchall()
+# 		cursor.execute("""SELECT fname, lname FROM Users WHERE user_id IN '{0}' """.format(friend_ids))
+# 		friends = cursor.fetchall()
+# 		return render_template('friends.html', friends=friends)
+# 	else:
+# 		return render_template('friends.html', friends=['red', 'blue'])
 
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
@@ -238,7 +234,6 @@ def getLikeCount(photo_id):
 
 def getPicturesbyTag(tag_id):
 	cursor = conn.cursor()
-
 
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -295,10 +290,11 @@ def explore():
 	#user = request.form.get("user")
 	#tag = request.form.get("tag")
 
-
 @app.route('/<user_id>', methods = ['GET', 'POST'])
 def profile(user_id):
-	user = request.args.get("user_id")
+	if request.method == 'GET':
+		return render_template('profile.html', user = user_id)
+	#esle (POST):
 
 #default page
 @app.route("/", methods=['GET'])

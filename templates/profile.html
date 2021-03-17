@@ -1,0 +1,10 @@
+<!doctype html>
+
+A user’s profile, containing their name, contribution score (?), button to see their list of friends, and a list of their albums
+{% if user %}
+	<h1>{{ user }}'s Profile</h1>
+{% endif %}
+- Logged in view (of OWN PROFILE): (@flask_login.login_required)  Users able to delete their own albums and photos. Also, upload is available here.
+- Logged in view (of OTHER USER PROFILE): (@flask_login.login_required) button so user can add person as a fiend
+- Not logged in view: just view the albums, be able to click on them and see them
+    This is true for all, the above just has extra features
