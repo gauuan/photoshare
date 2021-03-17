@@ -302,11 +302,14 @@ def profile(user_id):
 def friendsOfUser(user_id):
 	if flask.request.method == 'GET':
 		cursor = conn.cursor()
-		cursor.execute("""SELECT friend_id FROM are_friends WHERE user_id = '{0}' """.format(user_id))
+		cursor.execute("""(SELECT friend_id FROM are_friends WHERE user_id = '{0}')""".format(user_id))
 		friend_ids = cursor.fetchall()
-		cursor.execute("""SELECT fname, lname FROM Users WHERE user_id IN '{0}' """.format(friend_ids))
-		friends = cursor.fetchall()
-		return render_template('friends.html', friends=friends)
+		friend_id_list = [x[0] for x in friend_ids]
+		#cursor.execute("""SELECT Concat(U.fname, ' ', U.lname) FROM Users U, are_friends F WHERE F.friend_id = U.user_id AND F.user_id = '{0}')""".format(user_id))
+		#friend_names = cursor.fetchall()
+		friend_name_list = [getUserNameFromID(x) for x in friend_id_list]
+		#friends = cursor.fetchall()
+		return render_template('friends.html', friends = friend_name_list, friend_id = friend_id_list)
 	else:
 		return render_template('friends.html', friends=['red', 'blue'])
 
