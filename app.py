@@ -122,9 +122,6 @@ def getTagData():
 	tags = tag_str.split(',')
 	#for tag in tags:
 
-
-
-
 @login_manager.unauthorized_handler
 def unauthorized_handler():
 	return render_template('unauth.html')
@@ -175,9 +172,6 @@ def register_user():
 		return render_template('ee.html')
 
 
-<<<<<<< HEAD
-
-=======
 @app.route("/search", methods=['GET', 'POST'])
 def searchFriends():
 	if flask.request.method == 'GET':
@@ -197,7 +191,6 @@ def searchFriends():
 # 		return render_template('friends.html', friends=friends)
 # 	else:
 # 		return render_template('friends.html', friends=['red', 'blue'])
->>>>>>> 6986e08b273ce80d1bcae0b23fcdb21e0bff3b2e
 
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
@@ -286,11 +279,6 @@ def explore():
 		uid = getUserIdFromEmail(email)
 		return flask.redirect(flask.url_for())
 
-<<<<<<< HEAD
-# @app.route('/<user_id>', methods = ['GET', 'POST'])
-# def profile(user_id):
-	
-
 @app.route("/<user_id>/friends", methods=['GET', 'POST'])
 def friendsOfUser(user_id):
 	if flask.request.method == 'GET':
@@ -302,18 +290,12 @@ def friendsOfUser(user_id):
 		return render_template('friends.html', friends=friends)
 	else:
 		return render_template('friends.html', friends=['red', 'blue'])
-=======
+
 @app.route('/<user_id>', methods = ['GET', 'POST'])
 def profile(user_id):
 	if request.method == 'GET':
-<<<<<<< HEAD
 		return render_template('profile.html', user = user_id, name = getUserNameFromID(user_id))
 	#else (POST):
-=======
-		return render_template('profile.html', user = user_id)
-	#esle (POST):
->>>>>>> 6986e08b273ce80d1bcae0b23fcdb21e0bff3b2e
->>>>>>> d0154a9e63a01172345de6c944b445d100f603ca
 
 #default page
 @app.route("/", methods=['GET'])
