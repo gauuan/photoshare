@@ -174,31 +174,6 @@ def register_user():
 		#cursor.close()
 		return render_template('ee.html')
 
-
-<<<<<<< HEAD
-
-=======
-@app.route("/search", methods=['GET', 'POST'])
-def searchFriends():
-	if flask.request.method == 'GET':
-		#get value of search term 
-		cursor = conn.cursor()
-		cursor.execute("SELECT ")
-
-
-# @app.route("/<str:users>/friends", methods=['GET', 'POST'])
-# def friendsOfUser(users):
-# 	if flask.request.method == 'GET':
-# 		cursor = conn.cursor()
-# 		cursor.execute("""SELECT friend_id FROM are_friends WHERE user_id = '{0}' """.format(users))
-# 		friend_ids = cursor.fetchall()
-# 		cursor.execute("""SELECT fname, lname FROM Users WHERE user_id IN '{0}' """.format(friend_ids))
-# 		friends = cursor.fetchall()
-# 		return render_template('friends.html', friends=friends)
-# 	else:
-# 		return render_template('friends.html', friends=['red', 'blue'])
->>>>>>> 6986e08b273ce80d1bcae0b23fcdb21e0bff3b2e
-
 def getUsersPhotos(uid):
 	cursor = conn.cursor()
 	cursor.execute("SELECT imgdata, photo_id, caption FROM Photos WHERE user_id = '{0}'".format(uid))
@@ -238,12 +213,18 @@ def isEmailUnique(email):
 		return False
 	else:
 		return True
+
+def getUserNameFromID(user_id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT Concat(fname, ' ', lname) FROM Users WHERE user_id = '{0}'".format(user_id))
+	return cursor.fetchone()
 #end login code
 
 @app.route('/profile')
 @flask_login.login_required
 def protected():
 	return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
+
 
 #begin photo uploading code
 # photos uploaded using base64 encoding so they can be directly embeded in HTML
@@ -279,12 +260,16 @@ def explore():
 	else:
 		email = request.form.get("user")
 		uid = getUserIdFromEmail(email)
-		return flask.redirect(flask.url_for())
+		return flask.redirect(flask.url_for('profiles',user_id=uid), code=302)
 
-<<<<<<< HEAD
 # @app.route('/<user_id>', methods = ['GET', 'POST'])
 # def profile(user_id):
-	
+
+@app.route('/<user_id>', methods = ['GET', 'POST'])
+def profiles(user_id):
+	if request.method == 'GET':
+		return render_template('profile.html', user=user_id, name = getUserNameFromID(user_id))
+#else (POST):
 
 @app.route("/<user_id>/friends", methods=['GET', 'POST'])
 def friendsOfUser(user_id):
@@ -297,13 +282,6 @@ def friendsOfUser(user_id):
 		return render_template('friends.html', friends=friends)
 	else:
 		return render_template('friends.html', friends=['red', 'blue'])
-=======
-@app.route('/<user_id>', methods = ['GET', 'POST'])
-def profile(user_id):
-	if request.method == 'GET':
-		return render_template('profile.html', user = user_id)
-	#esle (POST):
->>>>>>> 6986e08b273ce80d1bcae0b23fcdb21e0bff3b2e
 
 #default page
 @app.route("/", methods=['GET'])
