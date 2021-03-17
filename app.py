@@ -240,6 +240,11 @@ def getUserIdFromEmail(email):
 	cursor.execute("SELECT user_id  FROM Users WHERE email = '{0}'".format(email))
 	return cursor.fetchone()[0]
 
+def getUserNameFromID(user_id):
+	cursor = conn.cursor()
+	cursor.execute("SELECT Concat(fname, ' ', lname) FROM Users WHERE user_id = '{0}'".format(user_id))
+	return cursor.fetchone()
+
 def isEmailUnique(email):
 	#use this to check if a email has already been registered
 	cursor = conn.cursor()
@@ -293,8 +298,8 @@ def explore():
 @app.route('/<user_id>', methods = ['GET', 'POST'])
 def profile(user_id):
 	if request.method == 'GET':
-		return render_template('profile.html', user = user_id)
-	#esle (POST):
+		return render_template('profile.html', user = user_id, name = getUserNameFromID(user_id))
+	#else (POST):
 
 #default page
 @app.route("/", methods=['GET'])
