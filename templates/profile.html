@@ -2,7 +2,17 @@
 
 A user’s profile, containing their name, contribution score (?), button to see their list of friends, and a list of their albums
 {% if name %}
-	<h1>{{ name }}'s Profile</h1>
+	<h1>{{ name[0] }}'s Profile</h1>
+{% endif %}
+
+{% if photos %}
+    <ul>
+    {% for photo in photos %}
+
+        <li>{{photo[2]}}<br>
+        <img src='data:image/jpg;base64, {{ base64.b64encode(photo[0]).decode("ascii") }}'/></li>
+    {% endfor %}
+    </ul>
 {% endif %}
 - Logged in view (of OWN PROFILE): (@flask_login.login_required)  Users able to delete their own albums and photos. Also, upload is available here.
 - Logged in view (of OTHER USER PROFILE): (@flask_login.login_required) button so user can add person as a fiend

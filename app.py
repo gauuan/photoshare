@@ -273,7 +273,7 @@ def explore():
 @app.route('/<user_id>', methods = ['GET', 'POST'])
 def profiles(user_id):
 	if request.method == 'GET':
-		return render_template('profile.html', user=user_id, name = getUserNameFromID(user_id))
+		return render_template('profile.html', name=getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64)
 #else (POST):
 
 @app.route("/<user_id>/friends", methods=['GET', 'POST'])
@@ -287,21 +287,16 @@ def friendsOfUser(user_id):
 		return render_template('friends.html', friends=friends)
 	else:
 		return render_template('friends.html', friends=['red', 'blue'])
-<<<<<<< HEAD
-=======
-=======
+
 @app.route('/<user_id>', methods = ['GET', 'POST'])
 def profile(user_id):
 	if request.method == 'GET':
-<<<<<<< HEAD
 		return render_template('profile.html', user = user_id, name = getUserNameFromID(user_id))
 	#else (POST):
-=======
-		return render_template('profile.html', user = user_id)
+
+		#return render_template('profile.html', user = user_id)
 	#esle (POST):
->>>>>>> 6986e08b273ce80d1bcae0b23fcdb21e0bff3b2e
->>>>>>> d0154a9e63a01172345de6c944b445d100f603ca
->>>>>>> e84dbd5a6b88c5ee4ca995e993672cb0c7c5c4c6
+
 
 #default page
 @app.route("/", methods=['GET'])
