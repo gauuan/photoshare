@@ -290,7 +290,7 @@ def upload_file():
 			cursor.execute(""" INSERT INTO is_tagged (tag_id, photo_id) VALUES (%s, %s )""", (tag_id[0], photo_id))
 
 		conn.commit()
-		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
+		return render_template('hello.html', name=flask_login.current_user.id, uploaded = 'True', message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
 	else:
 		cursor = conn.cursor()
@@ -301,7 +301,6 @@ def upload_file():
 def explore():
 	if request.method == 'GET':
 		return render_template('explore.html')
-	
 	else:
 		email = request.form.get("user")
 		if isEmailUnique(email) == False:
@@ -314,29 +313,53 @@ def explore():
 def profile(user_id):
 	if flask.request.method == 'GET':
 		if flask_login.current_user.is_authenticated:
-			if getUserIdFromEmail(flask_login.current_user.id) == user_id:
+			if str(getUserIdFromEmail(flask_login.current_user.id)) == user_id:
 				# current user is looking at their own profile
 				# functionality to delete albums and picture
 				# add route to upload new photos
-				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, self_view = 'True', uid=user_id)
+				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, self_view = 'True', user_id=user_id)
 				#only this case doesn't work, bc test msg isnt showing
 			else:
 				# current user is looking at someone else's profile
-				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, uid=user_id)
+				cursor = conn.cursor()
+				cursor.execute("SELECT * FROM are_friends WHERE user_id = '{0}' AND friend_id = '{1}'".format(str(getUserIdFromEmail(flask_login.current_user.id)), str(user_id)))
+				if cursor.fetchone() == None:
+					#aka, not already friends
+					return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64)
+				else:
+					# aka friends already
+					return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, already_friends = 'True')
 		else:
 		# anonymous user view
 			return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, anon = 'True', uid=user_id)
-	else:
-		comment = request.form.get('comment')
-		pid = request.form['submit_comment']
-		if flask_login.current_user.is_authenticated:
-			uid = getUserIdFromEmail(flask_login.current_user.id)
+	elif flask.request.method == 'POST':
+		if request.form.get("added_friend"):
+			cursor = conn.cursor()
+			cursor.execute("""SELECT * FROM are_friends WHERE user_id = '{0}' AND friend_id = '{1}'""".format(str(getUserIdFromEmail(flask_login.current_user.id)), str(user_id)))
+			if cursor.fetchone() == None:
+				cursor.execute('''INSERT INTO are_friends (user_id, friend_id) VALUES (%s, %s)''' , (str(getUserIdFromEmail(flask_login.current_user.id)), str(user_id)))
+				conn.commit()
+			return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, added = 'True')
+
 		else:
-			uid = NULL
-		cursor = conn.cursor()
-		poster_id = cursor.execute(""" SELECT user_id FROM Photos WHERE photo_id = %s""" % pid)
-		cursor.execute(""" INSERT INTO Comments (text, commenter_id, poster_id, photo_id) VALUES (%s, %s, %s, %s )""", (comment, uid, poster_id[0], pid))
-		return flask.redirect(flask.url_for('profile', user_id), code=302)
+			comment = request.form.get('comment')
+			pid = request.form.get('submit_comment')
+			if flask_login.current_user.is_authenticated:
+				uid = getUserIdFromEmail(flask_login.current_user.id)
+			else:
+				uid = None
+
+			cursor = conn.cursor()
+			cursor.execute(""" SELECT user_id FROM Photos WHERE photo_id = %s""" % str(pid))
+			poster_id = cursor.fetchone()[0]
+			if uid == poster_id:
+				return render_template('profile.html', user_id = user_id, name=getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64)
+			cursor.execute(""" INSERT INTO Comments (text, commenter_id, poster_id, photo_id) VALUES (%s, %s, %s, %s )""", (comment, uid, poster_id[0], pid))
+			conn.commit()			
+			return render_template('profile.html', user_id = user_id, name=getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64)
+
+		
+	#else (POST):
 
 
 @app.route("/<user_id>/friends", methods=['GET', 'POST'])
