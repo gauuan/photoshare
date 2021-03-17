@@ -12,7 +12,10 @@
     <div>
     <h1>Search for new friends/a user</h1> 
     <input type="text" name="user" placeholder="Email">
-    <input type="submit" value="Upload">
+    <input type="submit" value="Search">
+    {% if no_user_found %}
+    <h4>That user does not exist. Please try again</h4>
+    {% endif %}
     <p>(combining searching/adding for a friend and browsing by user)
         Type in fname lname, choose from list of links to user profiles
         Then, directed to selected user’s profile (can add friend from there)</p>
