@@ -26,7 +26,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 #These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'mango147'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'isham536'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -120,12 +120,19 @@ def showAlbums():
 		#POST:
 @app.route('/photos', methods=['POST'])
 def getTagData():
+	photos = []
 	tag_str= request.form.get('tag')
 	tags = tag_str.split(',')
-	#for tag in tags:
-
-
-
+	for tag in tags:
+		photo_ids = getPhotoIDsbyTag(tag)
+		if not photo_ids: #format: ((id,),(id,),(id,))
+			cursor.execute("""INSERT INTO Tags (tag) VALUES (%s))""",(tag))
+			conn.commit()
+			photo_ids.append(getPhotoIDsbyTag(tag))
+		for id in photo_ids:
+			photos.append(getPhotoFromPhotoID(id[0]))
+	return render_template('photo_render.html', photos=photos)
+		
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
@@ -181,6 +188,11 @@ def getUsersPhotos(uid):
 	cursor.execute("SELECT imgdata, photo_id, caption FROM Photos WHERE user_id = '{0}'".format(uid))
 	return cursor.fetchall() #NOTE list of tuples, [(imgdata, pid), ...]
 
+def getPhotoFromPhotoID(pid):
+	cursor = conn.cursor()
+	cursor.execute("SELECT imgdata, caption FROM Photos WHERE photo_id = '{0}'".format(pid))
+	return cursor.fetchall()
+
 def resizeImage(img):
 	img_bytes = BytesIO(img)
 	img_bytes.seek(0)
@@ -194,13 +206,16 @@ def resizeImage(img):
 def getLikeCount(photo_id):
 	cursor = conn.cursor()
 	cursor.execute("SELECT COUNT(*) FROM liked_photos WHERE liked_photo = '{0}'".format(photo_id))
-	return cursor.fetchone()
+	return cursor.fetchone()[0]
 
-def getPicturesbyTag(tag):
+def getPhotoIDsbyTag(tags):
 	cursor = conn.cursor()
-	cursor.execute(""" SELECT tag_id FROM Tags WHERE tag_id = '{0}' """.format(tag))
-	tags_ids = cursor.fetchall()
-	cursor.execute(""" SELECT photo_id FROM is_tagged WHERE tag_id = '{0}'""".format(tags_ids))
+	cursor.execute(""" SELECT tag_id FROM Tags WHERE tag IN '{0}' """.format(tuple(tags)))
+	tags_id = cursor.fetchall()
+	if tags_id:
+		cursor.execute(""" SELECT photo_id FROM is_tagged WHERE tag_id IN '{0}'""".format(tuple(tags_id)))
+		return cursor.fetchall()
+	return tuple()
 
 def getUserIdFromEmail(email):
 	cursor = conn.cursor()
@@ -251,14 +266,18 @@ def upload_file():
 
 		#NOTE: code to attach tags to photos
 		
-		# for tag in tags:
-		# 	cursor.execute(""" SELECT tag_id from Tags where tag = {0}""".format(tag))
-		# 	tag_id = cursor.fetchone()[0]
-		# 	if not tag_id:
-		# 		cursor.execute(""" INSERT INTO Tags (tag) VALUES (%s) """, tag)
-		# 		cursor.execute(""" SELECT tag_id from Tags where tag = {0}""".format(tag))
-		# 		tag_id = cursor.fetchone()[0]
-		# 	cursor.execute(""" SELECT photo_id FROM PHOTOS  """)
+		for tag in tags:
+			cursor.execute("""SELECT tag_id from Tags where tag = {0}""".format(tag))
+			tag_id = cursor.fetchone()[0]
+			if not tag_id:
+				cursor.execute("""INSERT INTO Tags (tag) VALUES (%s) """, tag)
+				conn.commit()
+				cursor.execute("""SELECT tag_id from Tags where tag = '{0}'""".format(tag))
+				tag_id = cursor.fetchone()[0]
+			cursor.execute("""SELECT photo_id FROM PHOTOS WHERE imgdata = '{0}' AND user_id = '{1}' AND caption = '{2}'""".format(photo_data, uid, caption))
+			photo_id = cursor.fetchone()[0]
+			cursor.execute(""" INSERT INTO is_tagged (tag_id, photo_id) VALUES (%s, %s )""",(photo_id, tag_id))
+
 		conn.commit()
 		return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!', photos=getUsersPhotos(uid),base64=base64)
 	#The method is GET so we return a  HTML form to upload the a photo.
