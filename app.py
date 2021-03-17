@@ -294,6 +294,7 @@ def profile(user_id):
 				# functionality to delete albums and picture
 				# add route to upload new photos
 				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, self_view = 'True')
+				#only this case doesn't work, bc test msg isnt showing
 			else:
 				# current user is looking at someone else's profile
 				return render_template('profile.html', name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64)
