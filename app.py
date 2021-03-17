@@ -89,8 +89,10 @@ def login():
 				<input type='text' name='email' id='email' placeholder='email'></input>
 				<input type='password' name='password' id='password' placeholder='password'></input>
 				<input type='submit' name='submit'></input>
-			   </form></br>
-		   <a href='/'>Home</a>
+			    </form></br>
+			    <h3> Or <a href='/register'>create an account</a> </h2>
+
+				<a href='/'>Home</a>
 			   '''
 	#The request method is POST (page is recieving data)
 	email = flask.request.form['email']
@@ -172,7 +174,7 @@ def register_user():
 		user = User()
 		user.id = email
 		flask_login.login_user(user)
-		return render_template('hello.html', name=email, message='Account Created!')
+		return render_template('hello.html', name=email, created = 'True', message='Account Created!')
 	elif not test:
 		#print("couldn't find all tokens")
 		#cursor.close()
@@ -317,17 +319,20 @@ def profile(user_id):
 				else:
 					# aka friends already
 					return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, already_friends = 'True')
-
 		else:
 		# anonymous user view
 			return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, anon = 'True')
 	else:
 		if request.form.get("added_friend"):
 			cursor = conn.cursor()
-			cursor.execute('''INSERT INTO are_friends (user_id, friend_id) VALUES (%s, %s)''' , (str(getUserIdFromEmail(flask_login.current_user.id)), str(user_id)))
-			conn.commit()
-			return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, added = 'True')
-	#else (POST):
+			cursor.execute("SELECT * FROM are_friends WHERE user_id = '{0}' AND friend_id = '{1}'".format(str(getUserIdFromEmail(flask_login.current_user.id)), str(user_id)))
+			if cursor.fetchone() == None:
+				cursor = conn.cursor()
+				cursor.execute('''INSERT INTO are_friends (user_id, friend_id) VALUES (%s, %s)''' , (str(getUserIdFromEmail(flask_login.current_user.id)), str(user_id)))
+				conn.commit()
+				return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, added = 'True')
+			else: 
+				return render_template('profile.html', user_id = user_id, name = getUserNameFromID(user_id), photos=getUsersPhotos(user_id), base64=base64, already_friends = 'True')
 
 
 @app.route("/<user_id>/friends", methods=['GET', 'POST'])
@@ -345,14 +350,16 @@ def friendsOfUser(user_id):
 	else: #POST. if have time, add hyperlinks to friends profiles
 		return render_template('friends.html', friends=['red', 'blue'])
 
+@app.route('/<user_id>/albums', methods = ['GET', 'POST'])
+
 #default page
 @app.route("/", methods=['GET'])
 def hello():
 	if flask_login.current_user.is_authenticated:
 		user_id = getUserIdFromEmail(flask_login.current_user.id)
-		return render_template('hello.html', user_id = user_id, message='Welecome to Photoshare')
+		return render_template('hello.html', user_id = user_id, message='Welcome to Photoshare')
 	else: 
-		return render_template('hello.html', message='Welecome to Photoshare')
+		return render_template('hello.html', message='Welcome to Photoshare')
 if __name__ == "__main__":
 	#this is invoked when in the shell  you run
 	#$ python app.py

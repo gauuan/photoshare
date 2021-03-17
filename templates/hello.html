@@ -30,7 +30,7 @@
     </ul>
 {% endif %}
 
-{% if not uploaded %}
+{% if not uploaded and not created%}
   {% if not user_id %}
     <p>You should <a href='/login'>login!</a></p>
   {% else %}
